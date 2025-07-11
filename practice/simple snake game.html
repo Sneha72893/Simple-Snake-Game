@@ -1,0 +1,170 @@
+# Query: 
+# ContextLines: 1
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+      background-color: rgb(95, 159, 199);
+    }
+    canvas {
+      background-color: rgb(155, 211, 211);
+      border: 2px solid #c3c7da;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 11px 20px;
+      background-color: #23b79e;
+      font-size: 17px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+    }
+    button:hover {
+      background-color: aquamarine;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Score: <span id="score">0</span></h1>
+  <canvas id="game" width="400" height="400"></canvas>
+  <button id="restartBtn" style="display:none;">Restart Game</button>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreDisplay = document.getElementById('score');
+    const restartBtn = document.getElementById('restartBtn');
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+
+    let snake, velocity, food, bonusFood, score, speed, gameInterval;
+
+    function initGame() {
+      snake = [{
+        x: Math.floor(Math.random() * tileCount),
+        y: Math.floor(Math.random() * tileCount)
+      }];
+      velocity = { x: 1, y: 0 };
+      food = randomPosition();
+      bonusFood = null;
+      score = 0;
+      speed = 120;
+      scoreDisplay.textContent = score;
+      restartBtn.style.display = "none";
+      clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, speed);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const arrowKeys = ["ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
+      if (arrowKeys.includes(e.key)) {
+        e.preventDefault();
+        switch (e.key) {
+          case "ArrowUp":
+            if (velocity.y === 0) velocity = { x: 0, y: -1 };
+            break;
+          case "ArrowDown":
+            if (velocity.y === 0) velocity = { x: 0, y: 1 };
+            break;
+          case "ArrowRight":
+            if (velocity.x === 0) velocity = { x: 1, y: 0 };
+            break;
+          case "ArrowLeft":
+            if (velocity.x === 0) velocity = { x: -1, y: 0 };
+            break;
+        }
+      }
+    });
+
+    restartBtn.addEventListener("click", initGame);
+
+    function gameLoop() {
+      const head = {
+        x: snake[0].x + velocity.x,
+        y: snake[0].y + velocity.y
+      };
+      head.x = (head.x + tileCount) % tileCount;
+      head.y = (head.y + tileCount) % tileCount;
+
+      // Collision with self
+      if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+        clearInterval(gameInterval);
+        restartBtn.style.display = "inline-block";
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Bonus food logic
+      if (score % 5 === 0 && score !== 0 && !bonusFood) {
+        bonusFood = randomPosition();
+      }
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreDisplay.textContent = score;
+        food = randomPosition();
+        increaseSpeed();
+      } else if (bonusFood && head.x === bonusFood.x && head.y === bonusFood.y) {
+        score += 2;
+        scoreDisplay.textContent = score;
+        bonusFood = null;
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function randomPosition() {
+      let newPos;
+      do {
+        newPos = {
+          x: Math.floor(Math.random() * tileCount),
+          y: Math.floor(Math.random() * tileCount)
+        };
+      } while (snake.some(part => part.x === newPos.x && part.y === newPos.y));
+      return newPos;
+    }
+
+    function draw() {
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = 'blue';
+      for (let i = 0; i < snake.length; i++) {
+        const part = snake[i];
+        ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize, gridSize);
+      }
+
+      ctx.fillStyle = 'red';
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+      if (bonusFood) {
+        ctx.fillStyle = '#ff0';
+        ctx.fillRect(bonusFood.x * gridSize, bonusFood.y * gridSize, gridSize, gridSize);
+      }
+    }
+
+    function increaseSpeed() {
+      if (speed > 50) {
+        speed -= 10;
+        clearInterval(gameInterval);
+        gameInterval = setInterval(gameLoop, speed);
+      }
+    }
+
+    initGame();
+  </script>
+</body>
+</html>

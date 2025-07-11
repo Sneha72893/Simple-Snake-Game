@@ -1,0 +1,136 @@
+# Query: 
+# ContextLines: 1
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color:#aa9944;
+      transition: background-color 0.3s, color 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .dark-mode {
+      background-color: #121212;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    select, input[type="text"], button {
+      padding: 10px;
+      font-size: 1em;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    li {
+      background: #a46b6b;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .completed::after {
+      content: "✔️";
+      margin-left: 10px;
+    }
+
+    .high { background-color: #ffcccc; }
+    .medium { background-color: #fff8cc; }
+    .low { background-color: #ccffcc; }
+
+    .dark-mode .high { background-color: #aa4444; color: white; }
+    .dark-mode .medium { background-color: #aa9944; color: white; }
+    .dark-mode .low { background-color: #449944; color: white; }
+
+    #toggleBtn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1> My To-Do List</h1>
+
+  <form id="todoForm">
+    <input type="text" id="taskInput" placehodatelder="Task" required />
+    <input type="date" id="dueDateInput">
+    <select id="prioritySelect">
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <button type="submit">Add</button>
+  </form>
+
+  <ul id="taskList"></ul>
+  <button id="toggleBtn">Toggle Dark Mode</button>
+
+  <script>
+    const form = document.getElementById('todoForm');
+    const taskInput = document.getElementById('taskInput');
+    const prioritySelect = document.getElementById('prioritySelect');
+    const taskList = document.getElementById('taskList');
+    const toggleBtn = document.getElementById('toggleBtn');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const taskText = taskInput.value.trim();
+      const priority = prioritySelect.value;
+
+      if (taskText !== "") {
+        const li = document.createElement('li');
+        li.textContent = taskText;
+        li.classList.add(priority);
+
+        // Mark as complete when clicked
+        li.addEventListener('click', () => {
+          li.classList.toggle('completed');
+        });
+
+        taskList.appendChild(li);
+        taskInput.value = "";
+      }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+  </script>
+</body>
+</html>

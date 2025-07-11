@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tic Tac Toe </title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #2b8192;
+    }
+    h2 {
+      margin-top: 20px;
+    }
+    #markSelector {
+      margin: 20px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      width: 310px;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2.5em;
+      cursor: pointer;
+      border: 2px solid #18d30a;
+      line-height: 100px;
+      background-color: rgb(108, 183, 83);
+      transition: background-color 0.3s;
+    }
+    .cell:hover {
+      background-color: #634343;
+    }
+    #turnLabel {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #restartBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Choose Your Mark</h2>
+  <div id="markSelector">
+    <button onclick="setPlayer('X')">Play as X</button>
+    <button onclick="setPlayer('O')">Play as O</button>
+  </div>
+
+  <div id="turnLabel"></div>
+  <div id="board"></div>
+  <button id="restartBtn" onclick="restartGame()" style="display:none;">Restart Game</button>
+
+  <script>
+    let player = 'X';
+    let currentTurn = 'X';
+    let board = Array(9).fill('');
+    let gameOver = false;
+
+    function setPlayer(mark) {
+      player = mark;
+      currentTurn = 'X';
+      board.fill('');
+      gameOver = false;
+      document.getElementById('markSelector').style.display = 'none';
+      document.getElementById('restartBtn').style.display = 'inline-block';
+      updateLabel();
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const boardContainer = document.getElementById('board');
+      boardContainer.innerHTML = '';
+      board.forEach((val, idx) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.innerText = val;
+        cell.onclick = () => makeMove(idx);
+        boardContainer.appendChild(cell);
+      });
+    }
+
+    function makeMove(index) {
+      if (board[index] !== '' || gameOver) return;
+      board[index] = currentTurn;
+      renderBoard();
+      if (checkWinner()) {
+        document.getElementById('turnLabel').innerText = `${currentTurn} wins!`;
+        gameOver = true;
+        return;
+      }
+      if (board.every(cell => cell !== '')) {
+        document.getElementById('turnLabel').innerText = `It's a draw!`;
+        gameOver = true;
+        return;
+      }
+      currentTurn = currentTurn === 'X' ? 'O' : 'X';
+      updateLabel();
+    }
+
+    function updateLabel() {
+      document.getElementById('turnLabel').innerText = `Your mark: ${player} | Turn: ${currentTurn}`;
+    }
+
+    function checkWinner() {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return wins.some(combo => {
+        const [a, b, c] = combo;
+        return board[a] && board[a] === board[b] && board[a] === board[c];
+      });
+    }
+
+    function restartGame() {
+      board.fill('');
+      gameOver = false;
+      currentTurn = 'X';
+      updateLabel();
+      renderBoard();
+    }
+  </script>
+
+</body>
+</html>
